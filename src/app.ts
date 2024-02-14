@@ -3,6 +3,7 @@ import { ActivityType, Client, Events, GatewayIntentBits } from 'discord.js';
 import dotenv from 'dotenv';
 import { commands } from './commands.js';
 import { redis } from './redis.js';
+import { logger } from './logger.js';
 
 // Load environment variables
 dotenv.config();
@@ -17,7 +18,7 @@ const client = new Client({
 });
 
 client.once(Events.ClientReady, (readyClient) => {
-  console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+  logger.info(`Ready! Logged in as ${readyClient.user.tag}`);
 
   client.user.setPresence({
     status: 'online',
@@ -56,14 +57,14 @@ client.on(Events.InteractionCreate, async (interaction) => {
   const command = commands.find((command) => command.data.name === interaction.commandName);
 
   if (!command) {
-    console.error(`No command matching ${interaction.commandName} was found.`);
+    logger.error(`No command matching ${interaction.commandName} was found.`);
     return;
   }
 
   try {
     await command.execute(interaction);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     if (interaction.replied || interaction.deferred) {
       await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
     } else {

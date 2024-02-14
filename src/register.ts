@@ -2,6 +2,7 @@ import { REST, Routes } from 'discord.js';
 import { commands } from './commands.js';
 
 import dotenv from 'dotenv';
+import { logger } from './logger.js';
 
 // Load environment variables
 dotenv.config();
@@ -14,11 +15,11 @@ try {
 
   const commandList = commands.map((command) => command.data.toJSON());
 
-  console.log(`Started refreshing ${commandList.length} application (/) commands.`);
+  logger.info(`Started refreshing ${commandList.length} application (/) commands.`);
 
   await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commandList });
 
-  console.log(`Successfully reloaded application (/) commands.`);
+  logger.info(`Successfully reloaded application (/) commands.`);
 } catch (error) {
-  console.error(error);
+  logger.error(error);
 }
