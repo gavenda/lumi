@@ -1,4 +1,4 @@
-import { Client, Events, GatewayIntentBits } from 'discord.js';
+import { ActivityType, Client, Events, GatewayIntentBits } from 'discord.js';
 
 import dotenv from 'dotenv';
 import { commands } from './commands.js';
@@ -18,6 +18,11 @@ const client = new Client({
 
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+
+  client.user.setPresence({
+    status: 'online',
+    activities: [{ name: 'The Most Beautiful Witch: Elaina', type: ActivityType.Watching }],
+  });
 });
 
 client.on(Events.MessageCreate, async (message) => {
