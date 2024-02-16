@@ -4,10 +4,13 @@ import dotenv from 'dotenv';
 import { commands } from './commands.js';
 import { redis } from './redis.js';
 import { logger } from './logger.js';
+import { events } from './events.js';
+import { exit } from 'node:process';
 
 // Load environment variables
 dotenv.config();
 
+// Create discord client
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -17,57 +20,17 @@ const client = new Client({
   ],
 });
 
+// Ready event
 client.once(Events.ClientReady, (readyClient) => {
   logger.info(`Ready! Logged in as ${readyClient.user.tag}`);
 
   client.user.setPresence({
     status: 'online',
-    activities: [{ name: 'The Most Beautiful Witch: Elaina', type: ActivityType.Watching }],
+    activities: [{ name: 'Elaina', type: ActivityType.Watching }],
   });
 });
 
-client.on(Events.MessageCreate, async (message) => {
-  if (!message.channel.isTextBased()) return;
-
-  const userId = message.member.id;
-  const dota2Key = `dota2:${userId}`;
-
-  if (message.cleanContent.toLowerCase().includes('dota')) {
-    await redis.incr(dota2Key);
-  }
-  const count = Number(await redis.get(dota2Key));
-
-  if (count % 10 === 0) {
-    if (count === 10) {
-      await message.channel.send(
-        `<@${message.member.id}> has mentioned \`Dota\` at least \`10\` times and has been timed out for a minute.`,
-      );
-      await message.member.timeout(60 * 1000, 'Mentioned dota at least 10 times');
-    } else {
-      await message.channel.send(
-        `<@${message.member.id}> has mentioned \`Dota\` for another \`10\` times, totaling \`${count}\` and has been timed out for a minute.`,
-      );
-      await message.member.timeout(60 * 1000, 'Mentioned dota for another 10 times');
-    }
-  }
-});
-
-client.on(Events.GuildMemberRemove, async (event) => {
-  const textChannel = await client.channels.resolve(process.env.WELCOME_ID).fetch();
-
-  if (textChannel.isTextBased()) {
-    textChannel.send(`<@${event.user.id}> has **${event.guild.name}**, very sadge.`);
-  }
-});
-
-client.on(Events.GuildMemberAdd, async (event) => {
-  const textChannel = await client.channels.resolve(process.env.WELCOME_ID).fetch();
-
-  if (textChannel.isTextBased()) {
-    textChannel.send(`Welcome <@${event.user.id}> to **${event.guild.name}**!`);
-  }
-});
-
+// Slash command interaction event
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -90,5 +53,18 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
-await redis.connect();
-await client.login(process.env.TOKEN);
+// Register events
+for (const event of events) {
+  client.on(event.event, event.execute);
+}
+
+try {
+  // Connect to redis
+  await redis.connect();
+
+  // Now ready to login to gateway
+  await client.login(process.env.TOKEN);
+} catch (error) {
+  logger.error(error);
+  exit(1);
+}
