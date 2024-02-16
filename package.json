@@ -7,11 +7,13 @@
     "start": "tsx .",
     "dev": "tsx watch .",
     "register": "tsx ./src/register.ts",
+    "lint": "eslint .",
     "prettier": "prettier src --write"
   },
   "type": "module",
   "author": "Gavenda <gavenda@disroot.org>",
   "private": true,
+  "license": "MIT",
   "dependencies": {
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.4",

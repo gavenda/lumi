@@ -54,8 +54,8 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 // Register events
-for (const event of events) {
-  client.on(event.event, event.execute);
+for (const { event, execute } of events) {
+  client.on(event, execute);
 }
 
 try {
