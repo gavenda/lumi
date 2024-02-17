@@ -6,6 +6,7 @@ import { redis } from './redis.js';
 import { logger } from './logger.js';
 import { events } from './events.js';
 import { exit } from 'node:process';
+import { DOTA2_WORDS } from './keys.js';
 
 // Load environment variables
 dotenv.config();
@@ -61,6 +62,9 @@ for (const { event, execute } of events) {
 try {
   // Connect to redis
   await redis.connect();
+
+  // Add dota keywords
+  await redis.sAdd(DOTA2_WORDS, 'dota');
 
   // Now ready to login to gateway
   await client.login(process.env.TOKEN);

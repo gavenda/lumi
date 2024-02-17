@@ -2,6 +2,7 @@ import { DiscordAPIError, Events, Message } from 'discord.js';
 import { AppEvent } from './event.js';
 import { redis } from '../redis.js';
 import { logger } from '../logger.js';
+import { DOTA2_KEY, DOTA2_WORDS } from '../keys.js';
 
 export const messageCreateDota: AppEvent<Events.MessageCreate> = {
   event: Events.MessageCreate,
@@ -13,13 +14,14 @@ export const messageCreateDota: AppEvent<Events.MessageCreate> = {
 
     if (!channel.isTextBased()) return;
 
-    const dota2Key = `dota2:${userId}`;
+    const dota2UserKey = `${DOTA2_KEY}:${userId}`;
+    const isDota = await redis.sIsMember(DOTA2_WORDS, message.cleanContent.toLowerCase());
 
-    if (message.cleanContent.toLowerCase().includes('dota')) {
-      await redis.incr(dota2Key);
+    if (isDota) {
+      await redis.incr(dota2UserKey);
     }
 
-    const count = Number(await redis.get(dota2Key));
+    const count = Number(await redis.get(dota2UserKey));
     let botMessage: Message;
 
     try {
