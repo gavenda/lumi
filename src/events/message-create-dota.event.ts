@@ -15,7 +15,8 @@ export const messageCreateDota: AppEvent<Events.MessageCreate> = {
     if (!channel.isTextBased()) return;
 
     const dota2UserKey = `${DOTA2_KEY}:${userId}`;
-    const isDota = await redis.sIsMember(DOTA2_WORDS, message.cleanContent.toLowerCase());
+    const dota2Words = await redis.sMembers(DOTA2_WORDS);
+    const isDota = dota2Words.some((word) => message.cleanContent.toLowerCase().includes(word));
 
     if (isDota) {
       await redis.incr(dota2UserKey);
