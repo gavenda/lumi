@@ -27,7 +27,7 @@ client.once(Events.ClientReady, (readyClient) => {
 
   client.user.setPresence({
     status: 'online',
-    activities: [{ name: 'Elaina', type: ActivityType.Watching }],
+    activities: [{ name: 'Kingdom of Palettia', type: ActivityType.Watching }],
   });
 });
 
