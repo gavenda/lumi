@@ -1,6 +1,7 @@
 # Lumi
 
-![example workflow](https://github.com/gavenda/lumi/actions/workflows/build.yml/badge.svg)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+![Build](https://github.com/gavenda/lumi/actions/workflows/build.yml/badge.svg)
 
 Moderation bot in progress!
 
