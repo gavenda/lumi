@@ -12,6 +12,7 @@ export const messageCreateDota: AppEvent<Events.MessageCreate> = {
     const member = message.member;
     const userId = member.id;
 
+    if (member.user.bot) return;
     if (!channel.isTextBased()) return;
 
     const dota2UserKey = `${DOTA2_KEY}:${userId}`;
