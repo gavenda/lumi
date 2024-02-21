@@ -13,7 +13,20 @@ export const dota: AppCommand = {
     )
     .setDescription('Check the number of times the user has mentioned or called for Dota.'),
   execute: async (interaction: CommandInteraction) => {
-    const userId = interaction.options.getUser('user').id;
+    const user = interaction.options.getUser('user');
+
+    if (user.id === interaction.client.user.id) {
+      interaction.reply(`Accusing me for dota? You are getting timed out.`);
+      const member = interaction.guild.members.resolve(interaction.user.id);
+      await member.timeout(5 * 60 * 1000, `MEME: Mentioning me for dota`);
+      return;
+    }
+    if (user.bot) {
+      interaction.reply(`The user you are mentioning is a bot, not worth your time.`);
+      return;
+    }
+
+    const userId = user.id;
     const count = await redis.get(`dota2:${userId}`);
 
     if (count) {
