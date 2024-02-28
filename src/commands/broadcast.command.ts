@@ -33,5 +33,9 @@ export const broadcast: AppCommand = {
     const message = interaction.options.getString('message', true);
 
     await channel.send(message);
+    await interaction.reply({
+      ephemeral: true,
+      content: 'Message sent!',
+    });
   },
 };
