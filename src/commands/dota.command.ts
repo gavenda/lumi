@@ -1,6 +1,6 @@
-import { CommandInteraction, SlashCommandBuilder, SlashCommandUserOption } from 'discord.js';
-import { AppCommand } from './command.js';
+import { ChatInputCommandInteraction, SlashCommandBuilder, SlashCommandUserOption } from 'discord.js';
 import { redis } from '../redis.js';
+import { AppCommand } from './command.js';
 
 export const dota: AppCommand = {
   data: new SlashCommandBuilder()
@@ -12,7 +12,7 @@ export const dota: AppCommand = {
         .setRequired(true),
     )
     .setDescription('Check the number of times the user has mentioned or called for Dota.'),
-  execute: async (interaction: CommandInteraction) => {
+  execute: async (interaction: ChatInputCommandInteraction) => {
     const user = interaction.options.getUser('user');
 
     if (user.id === interaction.client.user.id) {
