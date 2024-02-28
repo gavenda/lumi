@@ -12,7 +12,14 @@ export const broadcast: AppCommand = {
     .setName('broadcast')
     .addChannelOption(
       new SlashCommandChannelOption()
-        .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
+        .addChannelTypes(
+          ChannelType.GuildText,
+          ChannelType.GuildCategory,
+          ChannelType.GuildForum,
+          ChannelType.PrivateThread,
+          ChannelType.PublicThread,
+          ChannelType.GuildAnnouncement,
+        )
         .setName('channel')
         .setDescription('The channel to broadcast the message to.')
         .setRequired(true),
