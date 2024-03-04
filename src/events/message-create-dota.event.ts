@@ -1,13 +1,12 @@
+import { DOTA2_EXEMPT, DOTA2_KEY, DOTA2_WORDS } from '@/keys';
+import { logger } from '@/logger';
 import { DiscordAPIError, Events, Message } from 'discord.js';
-import { DOTA2_EXEMPT, DOTA2_KEY, DOTA2_WORDS } from '../keys.js';
-import { logger } from '../logger.js';
-import { redis } from '../redis.js';
-import { AppEvent } from './event.js';
+import { AppEvent } from './event';
 
 export const messageCreateDota: AppEvent<Events.MessageCreate> = {
   event: Events.MessageCreate,
   once: false,
-  execute: async (message) => {
+  execute: async ({ redis }, message) => {
     const channel = message.channel;
     const member = message.member;
 

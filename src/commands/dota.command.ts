@@ -1,5 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, SlashCommandUserOption } from 'discord.js';
-import { redis } from '../redis.js';
+import { SlashCommandBuilder, SlashCommandUserOption } from 'discord.js';
 import { AppCommand } from './command.js';
 
 export const dota: AppCommand = {
@@ -12,7 +11,7 @@ export const dota: AppCommand = {
         .setRequired(true)
     )
     .setDescription('Check the number of times the user has mentioned or called for Dota.'),
-  execute: async (interaction: ChatInputCommandInteraction) => {
+  execute: async ({ redis }, interaction) => {
     if (!interaction.guild) return;
 
     const user = interaction.options.getUser('user', true);

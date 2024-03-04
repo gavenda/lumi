@@ -1,19 +1,29 @@
+import { ActivityType, Client, Events, GatewayIntentBits } from 'discord.js';
+import { createClient } from 'redis';
+import { events } from './events.js';
+import { DOTA2_WORDS } from './keys.js';
+import { logger } from './logger.js';
 // @ts-expect-error no type definitions
 import * as dotenv from '@dotenvx/dotenvx';
+import { AppContext } from './app.context.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 dotenv.config();
 
-import { ActivityType, Client, Events, GatewayIntentBits } from 'discord.js';
-import { commands } from './commands.js';
-import { events } from './events.js';
-import { DOTA2_WORDS } from './keys.js';
-import { logger } from './logger.js';
-import { redis } from './redis.js';
-
+if (!process.env.REDIS_URL) {
+  throw new Error('REDIS_URL is required.');
+}
+if (!process.env.WELCOME_ID) {
+  throw new Error('WELCOME_ID is required.');
+}
 if (!process.env.TOKEN) {
   throw new Error('TOKEN is required.');
 }
+
+// Create redis client
+export const redis = createClient({
+  url: process.env.REDIS_URL
+});
 
 // Create discord client
 const client = new Client({
@@ -25,6 +35,8 @@ const client = new Client({
   ]
 });
 
+const context: AppContext = { client, redis, welcomeId: process.env.WELCOME_ID };
+
 // Ready event
 client.once(Events.ClientReady, (readyClient) => {
   logger.info(`Ready! Logged in as ${readyClient.user.tag}`);
@@ -33,29 +45,6 @@ client.once(Events.ClientReady, (readyClient) => {
     status: 'online',
     activities: [{ name: 'Kingdom of Palettia', type: ActivityType.Watching }]
   });
-});
-
-// Slash command interaction event
-client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-
-  const command = commands.find((command) => command.data.name === interaction.commandName);
-
-  if (!command) {
-    logger.error(`No command matching ${interaction.commandName} was found.`);
-    return;
-  }
-
-  try {
-    await command.execute(interaction);
-  } catch (error) {
-    logger.error(error);
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-    } else {
-      await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-    }
-  }
 });
 
 // Register events
