@@ -10,11 +10,12 @@ export const messageCreateDota: AppEvent<Events.MessageCreate> = {
   execute: async (message) => {
     const channel = message.channel;
     const member = message.member;
-    const userId = member.id;
 
+    if (!member) return;
     if (member.user.bot) return;
     if (!channel.isTextBased()) return;
 
+    const userId = member.id;
     const dota2Exempt = `${DOTA2_EXEMPT}:${userId}`;
     const dota2UserKey = `${DOTA2_KEY}:${userId}`;
     const dota2Words = await redis.sMembers(DOTA2_WORDS);
@@ -27,7 +28,7 @@ export const messageCreateDota: AppEvent<Events.MessageCreate> = {
 
     const exempt = Boolean(await redis.get(dota2Exempt));
     const count = Number(await redis.get(dota2UserKey));
-    let botMessage: Message;
+    let botMessage: Message | undefined;
 
     if (exempt) return;
 
@@ -35,12 +36,12 @@ export const messageCreateDota: AppEvent<Events.MessageCreate> = {
       if (count && count > 0 && count % 10 === 0) {
         if (count === 10) {
           botMessage = await channel.send(
-            `<@${userId}> has mentioned \`Dota\` at least \`10\` times and has been timed out for a minute.`,
+            `<@${userId}> has mentioned \`Dota\` at least \`10\` times and has been timed out for a minute.`
           );
           await member.timeout(60 * 1000, 'Mentioned dota at least 10 times');
         } else {
           botMessage = await channel.send(
-            `<@${userId}> has mentioned \`Dota\` for another \`10\` times, totaling \`${count}\` and has been timed out for a minute.`,
+            `<@${userId}> has mentioned \`Dota\` for another \`10\` times, totaling \`${count}\` and has been timed out for a minute.`
           );
           await member.timeout(60 * 1000, 'Mentioned dota for another 10 times');
         }
@@ -49,7 +50,7 @@ export const messageCreateDota: AppEvent<Events.MessageCreate> = {
       }
     } catch (error) {
       if (error instanceof DiscordAPIError) {
-        if (error.code === 50013) {
+        if (error.code === 50013 && botMessage !== undefined) {
           await botMessage.reply(`It seems that <@${userId}> is too powerful and cannot be timed out.`);
           await redis.set(dota2Exempt, 'true');
         }
@@ -57,5 +58,5 @@ export const messageCreateDota: AppEvent<Events.MessageCreate> = {
         logger.error(error);
       }
     }
-  },
+  }
 };

@@ -3,7 +3,7 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   SlashCommandChannelOption,
-  SlashCommandStringOption,
+  SlashCommandStringOption
 } from 'discord.js';
 import { AppCommand } from './command.js';
 
@@ -18,14 +18,14 @@ export const broadcast: AppCommand = {
           ChannelType.GuildForum,
           ChannelType.PrivateThread,
           ChannelType.PublicThread,
-          ChannelType.GuildAnnouncement,
+          ChannelType.GuildAnnouncement
         )
         .setName('channel')
         .setDescription('The channel to broadcast the message to.')
-        .setRequired(true),
+        .setRequired(true)
     )
     .addStringOption(
-      new SlashCommandStringOption().setName('message').setDescription('The message to send.').setRequired(true),
+      new SlashCommandStringOption().setName('message').setDescription('The message to send.').setRequired(true)
     )
     .setDescription('Broadcast a message to a specified channel.'),
   execute: async (interaction: ChatInputCommandInteraction) => {
@@ -35,7 +35,7 @@ export const broadcast: AppCommand = {
     await channel.send(message);
     await interaction.reply({
       ephemeral: true,
-      content: 'Message sent!',
+      content: 'Message sent!'
     });
-  },
+  }
 };

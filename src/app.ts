@@ -1,15 +1,19 @@
-import { ActivityType, Client, Events, GatewayIntentBits } from 'discord.js';
+// @ts-expect-error no type definitions
+import * as dotenv from '@dotenvx/dotenvx';
 
-import dotenv from 'dotenv';
-import { commands } from './commands.js';
-import { redis } from './redis.js';
-import { logger } from './logger.js';
-import { events } from './events.js';
-import { exit } from 'node:process';
-import { DOTA2_WORDS } from './keys.js';
-
-// Load environment variables
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 dotenv.config();
+
+import { ActivityType, Client, Events, GatewayIntentBits } from 'discord.js';
+import { commands } from './commands.js';
+import { events } from './events.js';
+import { DOTA2_WORDS } from './keys.js';
+import { logger } from './logger.js';
+import { redis } from './redis.js';
+
+if (!process.env.TOKEN) {
+  throw new Error('TOKEN is required.');
+}
 
 // Create discord client
 const client = new Client({
@@ -17,17 +21,17 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-  ],
+    GatewayIntentBits.MessageContent
+  ]
 });
 
 // Ready event
 client.once(Events.ClientReady, (readyClient) => {
   logger.info(`Ready! Logged in as ${readyClient.user.tag}`);
 
-  client.user.setPresence({
+  readyClient.user.setPresence({
     status: 'online',
-    activities: [{ name: 'Kingdom of Palettia', type: ActivityType.Watching }],
+    activities: [{ name: 'Kingdom of Palettia', type: ActivityType.Watching }]
   });
 });
 
@@ -55,20 +59,50 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 // Register events
-for (const { event, execute } of events) {
-  client.on(event, execute);
+for (const { once, event, execute } of events) {
+  logger.debug(`Registering event handler`, { event });
+
+  if (once) {
+    // @ts-expect-error too much OR typing here, compiler will get confused
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    client.once(event, ($event) => execute(context, $event));
+  } else {
+    // @ts-expect-error too much OR typing here, compiler will get confused
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    client.on(event, ($event) => execute(context, $event));
+  }
 }
+
+// Graceful disconnect
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+process.on('SIGINT', async () => {
+  logger.info('Received SIGINT, cleaning up');
+  if (redis.isReady) {
+    await redis.disconnect();
+  }
+  if (client.isReady()) {
+    await client.destroy();
+  }
+});
 
 try {
   // Connect to redis
   await redis.connect();
-
   // Add dota keywords
   await redis.sAdd(DOTA2_WORDS, 'dota');
+} catch (error) {
+  logger.error('Unable to connect to redis', { error });
+  process.exit(1);
+}
 
+try {
   // Now ready to login to gateway
   await client.login(process.env.TOKEN);
 } catch (error) {
-  logger.error(error);
-  exit(1);
+  logger.error('Unable to connect to discord gateway', { error });
+  process.exit(1);
+} finally {
+  if (process.send) {
+    process.send('ready');
+  }
 }

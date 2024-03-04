@@ -5,10 +5,14 @@ export const guildMemberRemove: AppEvent<Events.GuildMemberRemove> = {
   event: Events.GuildMemberRemove,
   once: false,
   execute: async (event) => {
-    const textChannel = await event.client.channels.resolve(process.env.WELCOME_ID).fetch();
-
-    if (textChannel.isTextBased()) {
-      textChannel.send(`<@${event.user.id}> has **${event.guild.name}**, very sadge.`);
+    if (!process.env.WELCOME_ID) {
+      throw new Error('Unable to send message, WELCOME_ID is missing.');
     }
-  },
+
+    const textChannel = await event.client.channels.fetch(process.env.WELCOME_ID);
+
+    if (textChannel?.isTextBased()) {
+      await textChannel.send(`<@${event.user.id}> has **${event.guild.name}**, very sadge.`);
+    }
+  }
 };
