@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, SlashCommandUserOption } from 'discord.js';
-import { AppCommand } from './command.js';
+import { AppCommand } from './command';
 
 export const dota: AppCommand = {
   data: new SlashCommandBuilder()

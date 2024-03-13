@@ -19,17 +19,17 @@ export const messageCreateDota: AppEvent<Events.MessageCreate> = {
     const dota2UserKey = `${DOTA2_KEY}:${userId}`;
     const dota2Words = await redis.sMembers(DOTA2_WORDS);
     const isDota = dota2Words.some((word) => message.cleanContent.toLowerCase().includes(word));
+    const exempt = Boolean(await redis.get(dota2Exempt));
+    const count = Number(await redis.get(dota2UserKey));
 
     if (isDota) {
       await redis.incr(dota2UserKey);
       await redis.del(dota2Exempt);
     }
 
-    const exempt = Boolean(await redis.get(dota2Exempt));
-    const count = Number(await redis.get(dota2UserKey));
-    let botMessage: Message | undefined;
-
     if (exempt) return;
+
+    let botMessage: Message | undefined;
 
     try {
       if (count && count > 0 && count % 10 === 0) {

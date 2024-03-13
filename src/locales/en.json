@@ -1,0 +1,26 @@
+{
+  "translation": {
+    "welcome": {
+      "title": "New Bogus Joined",
+      "1": ":tada: Welcome to **{{ server }}** <@{{ userId }}>! Feel free to leave now. Enjoy losing your braincells.",
+      "2": ":tada: Hey there, <@{{ userId }}>! Welcome to **{{ server }}**! Dive into our degeneracy.",
+      "3": ":tada: Welcome to **{{ server }}**, <@{{ userId }}>! You have no power here.",
+      "4": ":tada: Hey <@{{ userId }}>! Welcome to **{{ server }}**! You are about to hear every dumbshit in existence.",
+      "5": ":tada: Welcome to **{{ server }}**, <@{{ userId }}>! Are you ready to lose your every game?",
+      "6": ":tada: Welcome, <@{{ userId }}>! Dota?",
+      "7": ":tada: Hey <@{{ userId }}>, welcome! Need help? Good luck!",
+      "8": ":tada: Welcome, <@{{ userId }}>! Remember, no hand-holding here.",
+      "9": ":tada: Welcome to **{{ server }}**, <@{{ userId }}>! fend for your own shit.",
+      "10": ":tada: Hello, <@{{ userId }}>! Welcome to **{{ server }}**! We guarantee you a very stressful experience."
+    },
+    "leave": {
+      "title": "Graduated from Bogus",
+      "message": ":tada: <@{{ userId }}> has officially graduated from **{{ server }}**, a moment of congratulations!"
+    },
+    "reply": {
+      "message_sent": "Message sent!",
+      "role_assigned": "Assigned <@&{{ roleId }}> to member <@{{ userId }}>",
+      "no_permission_to_assign_role": "You don't have permission to assign a role!"
+    }
+  }
+}

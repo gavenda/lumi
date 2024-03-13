@@ -1,11 +1,13 @@
 import { ActivityType, Client, Events, GatewayIntentBits } from 'discord.js';
 import { createClient } from 'redis';
-import { events } from './events.js';
-import { DOTA2_WORDS } from './keys.js';
-import { logger } from './logger.js';
+import { events } from './events';
+import { DOTA2_WORDS } from './keys';
+import { logger } from './logger';
 // @ts-expect-error no type definitions
 import * as dotenv from '@dotenvx/dotenvx';
-import { AppContext } from './app.context.js';
+import { AppContext } from './app.context';
+import en from './locales/en.json';
+import i18next from 'i18next';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 dotenv.config();
@@ -85,6 +87,14 @@ try {
 }
 
 try {
+  // Initialize i18next
+  await i18next.init({
+    lng: 'en-US',
+    resources: {
+      en
+    }
+  });
+
   // Now ready to login to gateway
   await client.login(process.env.TOKEN);
 } catch (error) {
@@ -95,3 +105,6 @@ try {
     process.send('ready');
   }
 }
+
+process.stdin.resume();
+process.stdin.setEncoding('utf8');
