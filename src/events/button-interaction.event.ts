@@ -36,6 +36,13 @@ const handleRoleAssignment = async (options: { context: AppContext; guild: Guild
 
   // Add user to role
   await member.roles.add(roleId);
+
+  // Remove components after assigning a role
+  await interaction.update({
+    content: interaction.message.content,
+    components: []
+  });
+
   await interaction.followUp({
     ephemeral: true,
     content: i18next.t('reply.role_assigned', { lng, userId, roleId })
