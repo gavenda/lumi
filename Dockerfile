@@ -7,7 +7,7 @@ COPY package.json pnpm-lock.yaml /app/lumi
 RUN pnpm install
 
 # Actual Image
-FROM node:latest-alpine
+FROM node:current-alpine
 
 RUN mkdir -p /app/lumi
 COPY --from=build /app/lumi /app/lumi
