@@ -3,7 +3,7 @@ FROM node:latest as build
 
 RUN corepack enable pnpm && mkdir -p /app/lumi
 WORKDIR /app/lumi
-COPY package.json pnpm-lock.yaml /app/lumi
+COPY . /app/lumi
 RUN pnpm install
 
 # Actual Image
